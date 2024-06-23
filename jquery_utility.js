@@ -106,6 +106,79 @@ $( "#x" ).prop( "checked", false );
 var thirdLink = $( this ).find( "li a" ).eq( 2 );
 var linkText = thirdLink.text().replace( "foo", "bar" );
 thirdLink.text( linkText );
+
+// Event setup using the `.on()` method with data------------
+$( "input" ).on(
+    "change",
+    { foo: "bar" }, // Associate data with event binding
+    function( eventObject ) {
+        console.log("An input value has changed! ", eventObject.data.foo);
+    }
+);
+
+// Preventing a link from being followed-------
+$( "a" ).click(function( eventObject ) {
+    var elem = $( this );
+    if ( elem.attr( "href" ).match( /evil/ ) ) {
+        eventObject.preventDefault();
+        elem.addClass( "evil" );
+    }
+});
+
+// Multiple events, same handler-----------
+$( "input" ).on(
+    "click change", // Bind handlers for multiple events
+    function() {
+        console.log( "An input was clicked or changed!" );
+    }
+);
+
+$( "div" ).on( "mouseenter mouseleave", function() {
+    console.log( "mouse hovered over or left a div" );
+});
+
+// Binding multiple events with different handlers---------------
+$( "p" ).on({
+    "click": function() { console.log( "clicked!" ); },
+    "mouseover": function() { console.log( "hovered!" ); }
+});
+
+$( "div" ).on({
+    mouseenter: function() {
+        console.log( "hovered over a div" );
+    },
+    mouseleave: function() {
+        console.log( "mouse left a div" );
+    },
+    click: function() {
+        console.log( "clicked on a div" );
+    }
+});
+
+// Tearing down a particular click handler, using a reference to the function-------------
+var foo = function() { console.log( "foo" ); };
+var bar = function() { console.log( "bar" ); };
+ 
+$( "p" ).on( "click", foo ).on( "click", bar );
+$( "p" ).off( "click", bar ); // foo is still bound to the click event
+
+// Switching handlers using the `.one()` method----------------
+$( "p" ).one( "click", firstClick );
+ 
+function firstClick() {
+    console.log( "You just clicked this for the first time!" );
+ 
+    // Now set up the new handler for subsequent clicks;
+    // omit this step if no further click responses are needed
+    $( this ).click( function() { console.log( "You have clicked this before!" ); } );
+}
+
+//Passing data to the event handler----------------
+$( "p" ).on( "click", {
+    foo: "bar"
+}, function( event ) {
+    console.log( "event data: " + event.data.foo + " (should be 'bar')" );
+});
 /* ------------------
 <html>
 <body>
@@ -130,6 +203,15 @@ thirdLink.text( linkText );
 </body>
 </html>
 */
+
+// Attach a directly bound event handler
+$( "#list a" ).on( "click", function( event ) {
+    event.preventDefault();
+    console.log( $( this ).text() );
+});
+
+// Add a new element on to our existing list
+$( "#list" ).append( "<li><a href='http://newdomain.com'>Item #5</a></li>" );
 
 // Selecting an element's direct parent:
 // returns [ div.child ]
@@ -195,3 +277,28 @@ $( "div.surrogateParent2" ).prevAll().first();
 // returns [ div.parent ]
 $( "div.surrogateParent2" ).prevAll().last();
 
+//custom events trigger ----------
+/* 
+<div class="room" id="kitchen">
+    <div class="lightbulb on">Kitchen light</div>
+    <div class="switch">Kitchen switch 1</div>
+    <div class="switch">Kitchen switch 2</div>
+    <div class="clapper">Kitchen clapper switch</div>
+</div>
+*/
+
+$( ".lightbulb" ).on( "light:toggle", function( event ) {
+    var light = $( this );
+    if ( light.is( ".on" ) ) {
+        light.removeClass( "on" ).addClass( "off" );
+    } else {
+        light.removeClass( "off" ).addClass( "on" );
+    }
+});
+ 
+$( ".switch, .clapper" ).click(function() {
+    var room = $( this ).closest( ".room" );
+    room.find( ".lightbulb" ).trigger( "light:toggle" );
+});
+
+https://learn.jquery.com/events/introduction-to-custom-events/
