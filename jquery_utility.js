@@ -301,4 +301,49 @@ $( ".switch, .clapper" ).click(function() {
     room.find( ".lightbulb" ).trigger( "light:toggle" );
 });
 
-https://learn.jquery.com/events/introduction-to-custom-events/
+/*
+<div class="room" id="kitchen">
+    <div class="lightbulb on">Kitchen light</div>
+    <div class="switch">Kitchen switch 1</div>
+    <div class="switch">Kitchen switch 2</div>
+    <div class="clapper">Kitchen clapper switch</div>
+</div>
+<div class="room" id="bedroom">
+    <div class="lightbulb on">Bedroom light</div>
+    <div class="switch">Bedroom switch 1</div>
+    <div class="switch">Bedroom switch 2</div>
+    <div class="clapper">Bedroom clapper switch</div>
+</div>
+<div id="master_switch">Master switch</div>
+*/
+
+$( ".lightbulb" ).on( "light:toggle", function( event ) {
+    var light = $( this );
+    if ( light.is( ".on" ) ) {
+        light.trigger( "light:off" );
+    } else {
+        light.trigger( "light:on" );
+    }
+}).on( "light:on", function( event ) {
+    $( this ).removeClass( "off" ).addClass( "on" );
+}).on( "light:off", function( event ) {
+    $( this ).removeClass( "on" ).addClass( "off" );
+});
+ 
+$( ".switch, .clapper" ).click(function() {
+    var room = $( this ).closest( ".room" );
+    room.find( ".lightbulb" ).trigger( "light:toggle" );
+});
+ 
+$( "#master_switch" ).click(function() {
+    var lightbulbs = $( ".lightbulb" );
+ 
+    // Check if any lightbulbs are on
+    if ( lightbulbs.is( ".on" ) ) {
+        lightbulbs.trigger( "light:off" );
+    } else {
+        lightbulbs.trigger( "light:on" );
+    }
+});
+
+https://learn.jquery.com/ajax/ajax-and-forms/
